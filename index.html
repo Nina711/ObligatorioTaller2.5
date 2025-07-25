@@ -40,7 +40,7 @@
         <!-- FIN MENU -->
 
         <!-- PANTALLAS -->
-         <page-home class="ion-page" id="pantalla-home">
+        <page-home class="ion-page" id="pantalla-home">
             <ion-header>
                 <ion-toolbar>
                     <ion-buttons slot="start">
@@ -53,9 +53,9 @@
             <ion-content>
                 <ion-label>Bienvenidos a la app</ion-label>
             </ion-content>
-         </page-home>
+        </page-home>
 
-         <page-registro class="ion-page" id="pantalla-registro">
+        <page-registro class="ion-page" id="pantalla-registro">
             <ion-header>
                 <ion-toolbar>
                     <ion-buttons slot="start">
@@ -66,11 +66,28 @@
             </ion-header>
 
             <ion-content>
-                <ion-label>Aca va el form de registro</ion-label>
-            </ion-content>
-         </page-registro>
+                <ion-list>
 
-         <page-login class="ion-page" id="pantalla-login">
+                    <ion-item>
+                        <ion-select label="País" placeholder="Seleccione" id="slcPais">
+
+
+                        </ion-select>
+                    </ion-item>
+                    <ion-item>
+                        <ion-input label="Usuario" label-placement="floating" placeholder="User"></ion-input>
+                    </ion-item>
+                    <ion-item>
+                        <ion-input type="password" label="Password" label-placement="floating"
+                            placeholder="Pass"></ion-input>
+                    </ion-item>
+                    <ion-button expand="full" id="btnRegistrar">Registrar</ion-button>
+
+                </ion-list>
+            </ion-content>
+        </page-registro>
+
+        <page-login class="ion-page" id="pantalla-login">
             <ion-header>
                 <ion-toolbar>
                     <ion-buttons slot="start">
@@ -78,14 +95,34 @@
                     </ion-buttons>
                     <ion-title>Login</ion-title>
                 </ion-toolbar>
+
             </ion-header>
 
             <ion-content>
-                <ion-label>Aca va form login</ion-label>
-            </ion-content>
-         </page-login>
+                <ion-list>
 
-         <page-agregar-evaluacion class="ion-page" id="pantalla-agregar-evaluacion">
+
+
+                    <ion-item>
+                        <ion-input id="txtLoginUser" label="Usuario" label-placement="floating"
+                            placeholder="User"></ion-input>
+                    </ion-item>
+                    <ion-item>
+                        <ion-input id="txtLoginPassword" type="password" label="Password" label-placement="floating"
+                            placeholder="Pass"></ion-input>
+                    </ion-item>
+                    <ion-button expand="full" id="btnLogin">Login</ion-button>
+
+
+
+
+
+                </ion-list>
+
+            </ion-content>
+        </page-login>
+
+        <page-agregar-evaluacion class="ion-page" id="pantalla-agregar-evaluacion">
             <ion-header>
                 <ion-toolbar>
                     <ion-buttons slot="start">
@@ -98,9 +135,9 @@
             <ion-content>
                 <ion-label>form para agregar evaluacion</ion-label>
             </ion-content>
-         </page-agregar-evaluacion>
+        </page-agregar-evaluacion>
 
-         <page-listar-evaluaciones class="ion-page" id="pantalla-listar-evaluaciones">
+        <page-listar-evaluaciones class="ion-page" id="pantalla-listar-evaluaciones">
             <ion-header>
                 <ion-toolbar>
                     <ion-buttons slot="start">
@@ -113,9 +150,9 @@
             <ion-content>
                 <ion-label>Aca va el listado de evaluaciones, lo de eliminar y el filtrado</ion-label>
             </ion-content>
-         </page-listar-evaluaciones>
-         
-         <page-mapa class="ion-page" id="pantalla-mapa">
+        </page-listar-evaluaciones>
+
+        <page-mapa class="ion-page" id="pantalla-mapa">
             <ion-header>
                 <ion-toolbar>
                     <ion-buttons slot="start">
@@ -128,7 +165,7 @@
             <ion-content>
                 <ion-label>Aca se va a mostrar el mapa</ion-label>
             </ion-content>
-         </page-mapa>
+        </page-mapa>
         <!-- FIN PANTALLAS -->
 
     </ion-app>

@@ -6,6 +6,7 @@ const login = document.querySelector("#pantalla-login");
 const agregarEvaluacion = document.querySelector("#pantalla-agregar-evaluacion");
 const listarEvaluaciones = document.querySelector("#pantalla-listar-evaluaciones");
 const mapa = document.querySelector("#pantalla-mapa");
+const nav = document.querySelector("ion-nav");
 
 Inicio();
 
@@ -31,15 +32,48 @@ function ArmarMenu() {
                     <ion-item href="/login" onclick="CerrarMenu()">Login</ion-item>`;
     }
 
-    document.querySelector("#menu-opciones").innerHTML =  html;
+    document.querySelector("#menu-opciones").innerHTML = html;
 }
 
-function Logout(){
+function Logout() {
 
 }
 
 function Eventos() {
     router.addEventListener('ionRouteDidChange', Navegar);
+    document.querySelector("#btnLogin").addEventListener('click', TomarDatosLogin);
+}
+
+async function TomarDatosLogin() {
+    let u = document.querySelector("#txtLoginUser").value;
+    let p = document.querySelector("#txtLoginPassword").value;
+
+    let loginObj = new Object();
+    loginObj.usuario = u;
+    loginObj.password = p;
+
+    let response = await fetch(`https://goalify.develotion.com/login.php`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(loginObj),
+    });
+
+    let body = await response.json();
+
+    if (body.codigo == 200) {
+        console.log(body)
+
+        localStorage.setItem("token", body.token);
+        localStorage.setItem("iduser", body.id);
+
+        ArmarMenu();
+        nav.push("page-home");
+
+    } else {
+        alert("Error");
+    }
 }
 
 function Navegar(evt) {
@@ -50,6 +84,7 @@ function Navegar(evt) {
     switch (ruta) {
         case "/registro":
             registro.style.display = "block";
+            PoblarSelectPaises();
             break;
         case "/login":
             login.style.display = "block";
@@ -67,6 +102,20 @@ function Navegar(evt) {
             home.style.display = "block";
             break;
     }
+}
+
+async function PoblarSelectPaises() {
+
+    let response = await fetch("https://goalify.develotion.com/paises.php");
+    let body = await response.json();
+
+    console.log(body);
+    let html = ``;
+    for (let pais of body.paises) {
+        html += ` <ion-select-option value="${pais.id}">${pais.name}</ion-select-option>`
+    }
+    document.querySelector("#slcPais").innerHTML = html;
+
 }
 
 function OcultarTodo() {
