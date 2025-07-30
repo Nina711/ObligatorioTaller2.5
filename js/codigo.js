@@ -20,9 +20,10 @@ function Inicio() {
 
 function ArmarMenu() {
     let token = localStorage.getItem("token");
-    let html = `<ion-item href="/" onclick="CerrarMenu()">Home</ion-item>`;
+    let html = ``;
     if (token) {
-        html += `<ion-item href="/agregar-evaluacion" onclick="CerrarMenu()">Agregar evaluacion</ion-item>
+        html += `   <ion-item href="/" onclick="CerrarMenu()">Home</ion-item>
+                    <ion-item href="/agregar-evaluacion" onclick="CerrarMenu()">Agregar evaluacion</ion-item>
                     <ion-item href="/listar-evaluaciones" onclick="CerrarMenu()">Evaluaciones</ion-item>
                     <ion-item href="/mapa" onclick="CerrarMenu()">Mapa</ion-item>
                     <ion-item onclick="Logout()">Logout</ion-item>
@@ -64,7 +65,9 @@ async function TomarDatosRegistro() {
             body: JSON.stringify(registro),
         });
 
+
         let body = await response.json();
+        console.log(body);
 
         if (body.codigo == 200) {
             let loginObj = new Object();
@@ -81,6 +84,18 @@ async function TomarDatosRegistro() {
             });
 
             let bodyLogin = await responseLogin.json();
+
+            if (bodyLogin.codigo == 200) {
+                localStorage.setItem("token", body.token);
+                localStorage.setItem("iduser", body.id);
+
+                ArmarMenu();
+                nav.push("page-home");
+            }
+
+
+        } else {
+            Alertar("ALERTA!!", "Registro usuario", body.mensaje);
         }
     }
 }
