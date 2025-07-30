@@ -42,6 +42,57 @@ function Logout() {
 function Eventos() {
     router.addEventListener('ionRouteDidChange', Navegar);
     document.querySelector("#btnLogin").addEventListener('click', TomarDatosLogin);
+    document.querySelector("#btnRegistrar").addEventListener('click', TomarDatosRegistro);
+}
+
+async function TomarDatosRegistro() {
+    let n = document.querySelector("#txtRegistroNombre").value;
+    let p = document.querySelector("#txtRegistroPassword").value;
+    let pais = document.querySelector("#slcPais").value;
+
+    if (DatosValidos(n, p, pais)) {
+        let registro = new Object();
+        registro.usuario = n;
+        registro.password = p;
+        registro.idPais = pais;
+
+        let response = await fetch(`https://goalify.develotion.com/usuarios.php`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(registro),
+        });
+
+        let body = await response.json();
+
+        if (body.codigo == 200) {
+            let loginObj = new Object();
+
+            loginObj.usuario = n;
+            loginObj.password = p;
+
+            let responseLogin = await fetch(`https://goalify.develotion.com/login.php`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(loginObj),
+            });
+
+            let bodyLogin = await responseLogin.json();
+        }
+    }
+}
+
+function DatosValidos(nombre, password, pais) {
+    let sonValidos = true;
+
+    if (nombre === "" || password === "" || pais === "") {
+        sonValidos = false;
+    }
+
+    return sonValidos;
 }
 
 async function TomarDatosLogin() {
@@ -63,7 +114,7 @@ async function TomarDatosLogin() {
     let body = await response.json();
 
     if (body.codigo == 200) {
-        console.log(body)
+
 
         localStorage.setItem("token", body.token);
         localStorage.setItem("iduser", body.id);
@@ -127,4 +178,27 @@ function OcultarTodo() {
     mapa.style.display = "none";
 }
 
+function Alertar(titulo, subtitulo, mensaje) {
+    const alert = document.createElement('ion-alert');
+    alert.cssClass = 'my-custom-class';
+    alert.header = titulo;
+    alert.subHeader = subtitulo;
+    alert.message = mensaje;
+    alert.buttons = ['OK'];
+    document.body.appendChild(alert);
+    alert.present();
+}
 
+const loading = document.createElement('ion-loading');
+
+function PrenderLoading(texto) {
+    loading.cssClass = 'my-custom-class';
+    loading.message = texto;
+    //loading.duration = 2000;
+    document.body.appendChild(loading);
+    loading.present();
+}
+
+function ApagarLoader() {
+    loading.dismiss();
+}
