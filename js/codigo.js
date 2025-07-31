@@ -44,6 +44,7 @@ function Eventos() {
     router.addEventListener('ionRouteDidChange', Navegar);
     document.querySelector("#btnLogin").addEventListener('click', TomarDatosLogin);
     document.querySelector("#btnRegistrar").addEventListener('click', TomarDatosRegistro);
+    document.querySelector("#btnAgregarEvaluacion").addEventListener('click', TomarDatosEvaluacion);
 }
 
 async function TomarDatosRegistro() {
@@ -142,6 +143,10 @@ async function TomarDatosLogin() {
     }
 }
 
+async function TomarDatosEvaluacion() {
+
+}
+
 function Navegar(evt) {
     console.log(evt);
     OcultarTodo();
@@ -157,6 +162,7 @@ function Navegar(evt) {
             break;
         case "/agregar-evaluacion":
             agregarEvaluacion.style.display = "block";
+            PoblarSelectObjetivos();
             break;
         case "/listar-evaluaciones":
             listarEvaluaciones.style.display = "block";
@@ -182,6 +188,30 @@ async function PoblarSelectPaises() {
     }
     document.querySelector("#slcPais").innerHTML = html;
 
+}
+
+async function PoblarSelectObjetivos() {
+
+    let response = await fetch(`https://goalify.develotion.com/objetivos.php`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'token': localStorage.getItem("token"),
+            'iduser': localStorage.getItem("iduser")
+        },
+    });
+
+    let body = await response.json();
+
+    console.log(body)
+
+    let html = ``;
+
+    for (let objetivo of body.objetivos) {
+        html += `<ion-select-option value="${objetivo.id}">${objetivo.nombre}</ion-select-option>`
+    }
+
+    document.querySelector("#slcObjetivo").innerHTML = html;
 }
 
 function OcultarTodo() {

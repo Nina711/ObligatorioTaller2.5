@@ -130,11 +130,36 @@
                         <ion-menu-button></ion-menu-button>
                     </ion-buttons>
                     <ion-title>Agregar evaluacion</ion-title>
+
                 </ion-toolbar>
             </ion-header>
 
             <ion-content>
-                <ion-label>form para agregar evaluacion</ion-label>
+                <ion-list>
+
+                    <ion-item>
+                        <ion-select label="Objetivo" placholder="Seleccione..." id="slcObjetivo">
+
+                        </ion-select>
+                    </ion-item>
+
+                    <ion-item>
+
+                        <ion-input id="txtCalificacion" label="Calificacion" label-placement="floating"
+                            placeholder="Calificacion">
+                        </ion-input>
+
+                    </ion-item>
+
+                    <ion-item>
+
+                        <ion-input id="txtFecha" label="Fecha" label-placement="floating" placeholder="Ingrese fecha">
+                        </ion-input>
+
+                    </ion-item>
+
+                    <ion-button expand="full" id="btnAgregarEvaluacion">Agregar evaluacion</ion-button>
+                </ion-list>
             </ion-content>
         </page-agregar-evaluacion>
 
