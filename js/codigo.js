@@ -169,6 +169,7 @@ function Navegar(evt) {
             break;
         case "/mapa":
             mapa.style.display = "block";
+            CargarMapa();
             break;
         default:
             home.style.display = "block";
@@ -246,4 +247,30 @@ function PrenderLoading(texto) {
 
 function ApagarLoader() {
     loading.dismiss();
+}
+
+function CargarMapa() {
+    if (map != null) {
+        map.remove();
+    }
+
+    setTimeout(function () { CrearMapa() }, 200);
+}
+
+var map = null;
+
+function CrearMapa() {
+
+
+    map = L.map('map').setView([-34.89434734598432, -56.15323438268764]/*Coordenadas a mostrar*/, 13 /*Zoom*/);
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        minZoom: 1,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    var marker = L.marker([-34.89434734598432, -56.15323438268764]).addTo(map).bindPopup("<b>Hello!</b><br>Centenario.")
+
+    /**Hay que mostrar un pin por pais y en el bind popup mostrar la cantidad de usuarios que tiene ese pais, primero hay que pegarle a la obtener paises para luego pegarle a usuarios por pais  */
 }
