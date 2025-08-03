@@ -195,13 +195,10 @@ function guardarFecha(event) {
 }
 
 function validarFecha(fecha) {
-    let fechaIngresada = new Date(fecha); //Esto no esta andando bien idk why. Aca se cambia la fecha y queda igual a la de hoy y ya no puedo usar chat por hoy lol
     let hoy = new Date();
-    
-    console.log(fechaIngresada);
-    console.log(hoy);
+    let hoyFormateada = hoy.toISOString().substring(0, 10);
 
-    return fechaIngresada >= hoy;  
+    return fecha >= hoyFormateada;  
 }
 
 function validarCamposEvaluacion(objetivo, calificacion, usuario) {
@@ -221,7 +218,7 @@ async function listaEvaluaciones() {
     let html = ``;
 
     for(let eval of evaluaciones){
-        html += ``
+        html += ``;
     }
 
     document.querySelector("#lista-evaluaciones").innerHTML = html;
