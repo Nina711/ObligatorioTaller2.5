@@ -7,6 +7,7 @@ const agregarEvaluacion = document.querySelector("#pantalla-agregar-evaluacion")
 const listarEvaluaciones = document.querySelector("#pantalla-listar-evaluaciones");
 const mapa = document.querySelector("#pantalla-mapa");
 const nav = document.querySelector("ion-nav");
+let fechaSeleccionada = null;
 
 Inicio();
 
@@ -37,7 +38,11 @@ function ArmarMenu() {
 }
 
 function Logout() {
-
+    localStorage.setItem("token","");
+    localStorage.setItem("iduser", "");
+    nav.push("page-login")
+    ArmarMenu();
+    CerrarMenu();
 }
 
 function Eventos() {
@@ -45,6 +50,7 @@ function Eventos() {
     document.querySelector("#btnLogin").addEventListener('click', TomarDatosLogin);
     document.querySelector("#btnRegistrar").addEventListener('click', TomarDatosRegistro);
     document.querySelector("#btnAgregarEvaluacion").addEventListener('click', TomarDatosEvaluacion);
+    document.addEventListener('ionModalDidPresent', TomarFecha);
 }
 
 async function TomarDatosRegistro() {
@@ -93,8 +99,6 @@ async function TomarDatosRegistro() {
                 ArmarMenu();
                 nav.push("page-home");
             }
-
-
         } else {
             Alertar("ALERTA!!", "Registro usuario", body.mensaje);
         }
@@ -131,7 +135,6 @@ async function TomarDatosLogin() {
 
     if (body.codigo == 200) {
 
-
         localStorage.setItem("token", body.token);
         localStorage.setItem("iduser", body.id);
 
@@ -144,7 +147,99 @@ async function TomarDatosLogin() {
 }
 
 async function TomarDatosEvaluacion() {
+    let objetivo = document.querySelector("#slcObjetivo").value;
+    let calificacion = document.querySelector("#txtCalificacion").value;
+    let fecha = fechaSeleccionada;
+    let usuario = localStorage.getItem("iduser");
+    let token = localStorage.getItem("token");
 
+    if (!validarFecha(fecha) && validarCamposEvaluacion(objetivo, calificacion, usuario)) {
+        let response = await fetch(`https://goalify.develotion.com/evaluaciones.php`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'token': token,
+                'iduser': usuario
+            },
+            body: JSON.stringify({
+                idObjetivo: objetivo,
+                idUsuario: usuario,
+                calificacion: calificacion,
+                fecha: fecha
+            })
+        });
+
+        let body = await response.json();
+
+        if (body.codigo == 200) {
+            nav.push("page-listar-evaluaciones");
+        } else {
+            alert("Error");
+        }
+    } else {
+        alert("error2")
+    }
+}
+
+function TomarFecha(){
+    let fecha = document.querySelector("#miFecha");
+
+    if(fecha){
+        fecha.addEventListener("ionChange", guardarFecha);
+    }
+}
+
+function guardarFecha(event) {
+    fechaSeleccionada = event.detail.value.substring(0,10);
+    console.log("Fecha guardada:", fechaSeleccionada);
+}
+
+function validarFecha(fecha) {
+    let fechaIngresada = new Date(fecha); //Esto no esta andando bien idk why. Aca se cambia la fecha y queda igual a la de hoy y ya no puedo usar chat por hoy lol
+    let hoy = new Date();
+    
+    console.log(fechaIngresada);
+    console.log(hoy);
+
+    return fechaIngresada >= hoy;  
+}
+
+function validarCamposEvaluacion(objetivo, calificacion, usuario) {
+    let esValido = true;
+    if (objetivo == "" || calificacion == "" || calificacion < -5 || calificacion > 5 || usuario == "") {
+        esValido = false;
+    }
+
+    return esValido;
+}
+
+async function listaEvaluaciones() {
+    PrenderLoading("Cargando evaluaciones");
+    let evaluaciones = await obtenerEvaluaciones();
+    ApagarLoader();
+
+    let html = ``;
+
+    for(let eval of evaluaciones){
+        html += ``
+    }
+
+    document.querySelector("#lista-evaluaciones").innerHTML = html;
+
+}
+
+async function obtenerEvaluaciones() {
+    let response = await fetch(`https://goalify.develotion.com/objetivos.php`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'token': localStorage.getItem("token"),
+            'iduser': localStorage.getItem("iduser")
+        }
+    });
+
+    let body = await response.json();
+    return body.objetivos;
 }
 
 function Navegar(evt) {

@@ -114,8 +114,6 @@
             <ion-content>
                 <ion-list>
 
-
-
                     <ion-item>
                         <ion-input id="txtLoginUser" label="Usuario" label-placement="floating"
                             placeholder="User"></ion-input>
@@ -125,10 +123,6 @@
                             placeholder="Pass"></ion-input>
                     </ion-item>
                     <ion-button expand="full" id="btnLogin">Login</ion-button>
-
-
-
-
 
                 </ion-list>
 
@@ -164,13 +158,16 @@
                     </ion-item>
 
                     <ion-item>
+                        <ion-label>Selecciona una fecha</ion-label>
+                        <ion-datetime-button datetime="miFecha" id="dateObjetivoFecha"></ion-datetime-button>
 
-                        <ion-input id="txtFecha" label="Fecha" label-placement="floating" placeholder="Ingrese fecha">
-                        </ion-input>
-
+                    <ion-modal>
+                        <ion-datetime id="miFecha" presentation="date" prefer-wheel="false"></ion-datetime>
+                    </ion-modal>
                     </ion-item>
 
                     <ion-button expand="full" id="btnAgregarEvaluacion">Agregar evaluacion</ion-button>
+
                 </ion-list>
             </ion-content>
         </page-agregar-evaluacion>
@@ -186,7 +183,7 @@
             </ion-header>
 
             <ion-content>
-                <ion-label>Aca va el listado de evaluaciones, lo de eliminar y el filtrado</ion-label>
+                <ion-div id="lista-evaluaciones"></ion-div>
             </ion-content>
         </page-listar-evaluaciones>
 
