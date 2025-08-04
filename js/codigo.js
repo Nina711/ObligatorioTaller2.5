@@ -282,6 +282,26 @@ async function obtenerEvaluaciones() {
 }
 
 async function BorrarEvaluacion(idEvaluacion) {
+    let iduser = localStorage.getItem("iduser");
+    let token = localStorage.getItem("token");
+
+    let response = await fetch(`https://goalify.develotion.com/evaluaciones.php?idEvaluacion=${idEvaluacion}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'token': token,
+            'iduser': iduser,
+        }
+    });
+
+    let body = await response.json();
+
+    if (body.codigo === 200) {
+        MostrarToast("Evaluacion borrada con exito", 2000);
+        setTimeout(function () { listaEvaluaciones() }, 1000);
+    } else {
+        Alertar("ALERTA!!", "Borrar evaluacion", body.mensaje);
+    }
 
 }
 
