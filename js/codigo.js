@@ -38,7 +38,7 @@ function ArmarMenu() {
 }
 
 function Logout() {
-    localStorage.setItem("token","");
+    localStorage.setItem("token", "");
     localStorage.setItem("iduser", "");
     nav.push("page-login")
     ArmarMenu();
@@ -153,6 +153,7 @@ async function TomarDatosEvaluacion() {
     let usuario = localStorage.getItem("iduser");
     let token = localStorage.getItem("token");
 
+
     if (!validarFecha(fecha) && validarCamposEvaluacion(objetivo, calificacion, usuario)) {
         let response = await fetch(`https://goalify.develotion.com/evaluaciones.php`, {
             method: 'POST',
@@ -162,35 +163,40 @@ async function TomarDatosEvaluacion() {
                 'iduser': usuario
             },
             body: JSON.stringify({
-                idObjetivo: objetivo,
-                idUsuario: usuario,
-                calificacion: calificacion,
-                fecha: fecha
+                'idObjetivo': objetivo,
+                'idUsuario': usuario,
+                'calificacion': calificacion,
+                'fecha': fecha
             })
         });
-
+        PrenderLoading("Agregando evaluacion");
         let body = await response.json();
 
         if (body.codigo == 200) {
+            ApagarLoader();
+            ArmarMenu();
+            listaEvaluaciones();
             nav.push("page-listar-evaluaciones");
+
+
         } else {
-            alert("Error");
+            Alertar("ALERTA!!", "Agregar evaluacion", body.mensaje);
         }
     } else {
-        alert("error2")
+        Alertar("ALERTA!!", "Agregar evaluacion", "Datos invalidos");
     }
 }
 
-function TomarFecha(){
+function TomarFecha() {
     let fecha = document.querySelector("#miFecha");
 
-    if(fecha){
+    if (fecha) {
         fecha.addEventListener("ionChange", guardarFecha);
     }
 }
 
 function guardarFecha(event) {
-    fechaSeleccionada = event.detail.value.substring(0,10);
+    fechaSeleccionada = event.detail.value.substring(0, 10);
     console.log("Fecha guardada:", fechaSeleccionada);
 }
 
@@ -198,7 +204,7 @@ function validarFecha(fecha) {
     let hoy = new Date();
     let hoyFormateada = hoy.toISOString().substring(0, 10);
 
-    return fecha >= hoyFormateada;  
+    return fecha >= hoyFormateada;
 }
 
 function validarCamposEvaluacion(objetivo, calificacion, usuario) {
@@ -212,20 +218,30 @@ function validarCamposEvaluacion(objetivo, calificacion, usuario) {
 
 async function listaEvaluaciones() {
     PrenderLoading("Cargando evaluaciones");
-    let evaluaciones = await obtenerEvaluaciones();
-    ApagarLoader();
+    let data = await obtenerEvaluaciones();
+    let evaluaciones = data.evaluaciones;
 
     let html = ``;
 
-    for(let eval of evaluaciones){
-        html += ``;
+    for (let eval of evaluaciones) {
+        let emoji = await obtenerEmojiPorId(eval.idObjetivo);
+        html += `<ion-item-sliding>
+                    <ion-item-options side="start">
+                    <ion-item-option id="${eval.idUsuario}" color="danger" onclick="BorrarEvaluacion(${eval.id})">Eliminar</ion-item-option>
+                    </ion-item-options>
+
+                    <ion-item>
+                    <ion-label>${eval.calificacion} ${eval.fecha} ${emoji}</ion-label>
+                    </ion-item>
+                </ion-item-sliding>`;
     }
+    ApagarLoader();
 
     document.querySelector("#lista-evaluaciones").innerHTML = html;
 
 }
 
-async function obtenerEvaluaciones() {
+async function obtenerEmojiPorId(idObjetivo) {
     let response = await fetch(`https://goalify.develotion.com/objetivos.php`, {
         method: 'GET',
         headers: {
@@ -236,7 +252,37 @@ async function obtenerEvaluaciones() {
     });
 
     let body = await response.json();
-    return body.objetivos;
+
+    for (let objetivo of body.objetivos) {
+        if (objetivo.id === idObjetivo) {
+            return objetivo.emoji;
+        }
+    }
+
+    return "No hay emoji";
+}
+
+async function obtenerEvaluaciones() {
+    let iduser = localStorage.getItem("iduser");
+    let token = localStorage.getItem("token");
+
+    let response = await fetch(`https://goalify.develotion.com/evaluaciones.php?idUsuario=${iduser}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'token': token,
+            'iduser': iduser,
+        }
+    });
+
+    let body = await response.json();
+
+    return body;
+
+}
+
+async function BorrarEvaluacion(idEvaluacion) {
+
 }
 
 function Navegar(evt) {
@@ -258,6 +304,7 @@ function Navegar(evt) {
             break;
         case "/listar-evaluaciones":
             listarEvaluaciones.style.display = "block";
+            listaEvaluaciones();
             break;
         case "/mapa":
             mapa.style.display = "block";
@@ -295,8 +342,6 @@ async function PoblarSelectObjetivos() {
     });
 
     let body = await response.json();
-
-    console.log(body)
 
     let html = ``;
 
@@ -347,6 +392,14 @@ function CargarMapa() {
     }
 
     setTimeout(function () { CrearMapa() }, 200);
+}
+
+function MostrarToast(mensaje, duracion) {
+    const toast = document.createElement('ion-toast');
+    toast.message = mensaje;
+    toast.duration = duracion;
+    document.body.appendChild(toast);
+    toast.present();
 }
 
 var map = null;
