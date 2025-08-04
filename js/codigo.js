@@ -231,7 +231,7 @@ async function listaEvaluaciones() {
                     </ion-item-options>
 
                     <ion-item>
-                    <ion-label>${eval.calificacion} ${eval.fecha} ${emoji}</ion-label>
+                    <ion-label>${emoji} - Calificacion: ${eval.calificacion} - Fecha: ${eval.fecha} </ion-label>
                     </ion-item>
                 </ion-item-sliding>`;
     }
