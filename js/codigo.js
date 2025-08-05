@@ -38,8 +38,7 @@ function ArmarMenu() {
 }
 
 function Logout() {
-    localStorage.setItem("token", "");
-    localStorage.setItem("iduser", "");
+    localStorage.clear();
     nav.push("page-login")
     ArmarMenu();
     CerrarMenu();
@@ -456,18 +455,46 @@ function MostrarToast(mensaje, duracion) {
 
 var map = null;
 
-function CrearMapa() {
+async function CrearMapa() {
 
 
-    map = L.map('map').setView([-34.89434734598432, -56.15323438268764]/*Coordenadas a mostrar*/, 3 /*Zoom*/);
+    map = L.map('map').setView([-34.89434734598432, -56.15323438268764], 3);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         minZoom: 1,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
+    // PrenderLoading("Calculando cantidad de usuarios por pais");
+    let response = await fetch("https://goalify.develotion.com/paises.php");
+    let body = await response.json();
+    let paises = body.paises;
 
-    var marker = L.marker([-34.89434734598432, -56.15323438268764]).addTo(map).bindPopup("<b>Hello!</b><br>Centenario.")
+    for (let pais of paises) {
+        let cantidadUsuarios = await CantidadUsuariosPorId(pais.id);
+        var marker = L.marker([pais.latitude, pais.longitude]).addTo(map).bindPopup(`Cantidad de usuarios: ${cantidadUsuarios}`)
+    }
 
-    /**Hay que mostrar un pin por pais y en el bind popup mostrar la cantidad de usuarios que tiene ese pais, primero hay que pegarle a la obtener paises para luego pegarle a usuarios por pais  */
+    ApagarLoader();
+}
+
+async function CantidadUsuariosPorId(idPais) {
+    let response = await fetch(`https://goalify.develotion.com/usuariosPorPais.php`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'token': localStorage.getItem("token"),
+            'iduser': localStorage.getItem("iduser")
+        }
+    });
+
+    let body = await response.json();
+
+    let paises = body.paises;
+
+    for (let pais of paises) {
+        if (pais.id === idPais) {
+            return pais.cantidadDeUsuarios;
+        }
+    }
 }
