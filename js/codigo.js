@@ -465,7 +465,7 @@ async function CrearMapa() {
         minZoom: 1,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
-    // PrenderLoading("Calculando cantidad de usuarios por pais");
+    PrenderLoading("Calculando cantidad de usuarios por pais");
     let response = await fetch("https://goalify.develotion.com/paises.php");
     let body = await response.json();
     let paises = body.paises;
