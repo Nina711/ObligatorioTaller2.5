@@ -74,7 +74,7 @@ async function TomarDatosRegistro() {
 
 
         let body = await response.json();
-        console.log(body);
+
 
         if (body.codigo == 200) {
             let loginObj = new Object();
@@ -216,14 +216,16 @@ function validarCamposEvaluacion(objetivo, calificacion, usuario) {
     return esValido;
 }
 
-async function listaEvaluaciones() {
+async function listaEvaluaciones(filtro) {
     PrenderLoading("Cargando evaluaciones");
     let data = await obtenerEvaluaciones();
     let evaluaciones = data.evaluaciones;
 
+    let evaluacionesFiltradas = aplicarFiltroFecha(evaluaciones, filtro);
+
     let html = ``;
 
-    for (let eval of evaluaciones) {
+    for (let eval of evaluacionesFiltradas) {
         let emoji = await obtenerEmojiPorId(eval.idObjetivo);
         html += `<ion-item-sliding>
                     <ion-item-options side="start">
@@ -240,6 +242,36 @@ async function listaEvaluaciones() {
     document.querySelector("#lista-evaluaciones").innerHTML = html;
 
 }
+
+function aplicarFiltroFecha(evaluaciones, filtro) {
+    let hoy = new Date();
+    let fechaLimite = new Date(hoy);
+    let evaluacionesPorFecha = [];
+
+    if (filtro === "semana") {
+        fechaLimite.setDate(hoy.getDate() - 7);
+    } else if (filtro === "mes") {
+        fechaLimite.setMonth(hoy.getMonth() - 1);
+    } else {
+        return evaluaciones;
+    }
+
+    hoy = hoy.toISOString().substring(0, 10);
+    fechaLimite = fechaLimite.toISOString().substring(0, 10);
+
+    for (let evaluacion of evaluaciones) {
+        if (evaluacion.fecha >= fechaLimite && evaluacion.fecha <= hoy) {
+            evaluacionesPorFecha.push(evaluacion);
+        }
+    }
+
+    return evaluacionesPorFecha;
+}
+
+function FiltrarEvaluaciones(filtro) {
+    listaEvaluaciones(filtro);
+}
+
 
 async function obtenerEmojiPorId(idObjetivo) {
     let response = await fetch(`https://goalify.develotion.com/objetivos.php`, {
@@ -324,7 +356,7 @@ function Navegar(evt) {
             break;
         case "/listar-evaluaciones":
             listarEvaluaciones.style.display = "block";
-            listaEvaluaciones();
+            listaEvaluaciones('todo');
             break;
         case "/mapa":
             mapa.style.display = "block";
@@ -341,7 +373,7 @@ async function PoblarSelectPaises() {
     let response = await fetch("https://goalify.develotion.com/paises.php");
     let body = await response.json();
 
-    console.log(body);
+
     let html = ``;
     for (let pais of body.paises) {
         html += ` <ion-select-option value="${pais.id}">${pais.name}</ion-select-option>`
@@ -427,7 +459,7 @@ var map = null;
 function CrearMapa() {
 
 
-    map = L.map('map').setView([-34.89434734598432, -56.15323438268764]/*Coordenadas a mostrar*/, 13 /*Zoom*/);
+    map = L.map('map').setView([-34.89434734598432, -56.15323438268764]/*Coordenadas a mostrar*/, 3 /*Zoom*/);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,

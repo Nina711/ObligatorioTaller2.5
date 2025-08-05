@@ -161,9 +161,9 @@
                         <ion-label>Selecciona una fecha</ion-label>
                         <ion-datetime-button datetime="miFecha" id="dateObjetivoFecha"></ion-datetime-button>
 
-                    <ion-modal>
-                        <ion-datetime id="miFecha" presentation="date" prefer-wheel="false"></ion-datetime>
-                    </ion-modal>
+                        <ion-modal>
+                            <ion-datetime id="miFecha" presentation="date" prefer-wheel="false"></ion-datetime>
+                        </ion-modal>
                     </ion-item>
 
                     <ion-button expand="full" id="btnAgregarEvaluacion">Agregar evaluacion</ion-button>
@@ -183,6 +183,11 @@
             </ion-header>
 
             <ion-content>
+                <ion-button onclick="FiltrarEvaluaciones('semana')">Última semana</ion-button>
+                <ion-button onclick="FiltrarEvaluaciones('mes')">Último mes</ion-button>
+                <ion-button onclick="FiltrarEvaluaciones('todo')">Ver todo</ion-button>
+
+
                 <ion-div id="lista-evaluaciones"></ion-div>
             </ion-content>
         </page-listar-evaluaciones>
