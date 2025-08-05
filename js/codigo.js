@@ -101,6 +101,8 @@ async function TomarDatosRegistro() {
         } else {
             Alertar("ALERTA!!", "Registro usuario", body.mensaje);
         }
+    } else {
+        Alertar("ALERTA!!", "Registro usuario", "Complete todos los campos");
     }
 }
 
@@ -140,8 +142,10 @@ async function TomarDatosLogin() {
         ArmarMenu();
         nav.push("page-home");
 
-    } else {
-        alert("Error");
+    } else if (body.codigo == 409) {
+        Alertar("ALERTA!!!", "Login", body.mensaje);
+    } else if (body.codigo == 404) {
+        Alertar("ALERTA!!!", "Login", body.mensaje);
     }
 }
 
