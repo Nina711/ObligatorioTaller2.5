@@ -161,7 +161,6 @@ async function TomarDatosLogin() {
         MostrarToast("Sesión iniciada con éxito", 2000);
         localStorage.setItem("token", body.token);
         localStorage.setItem("iduser", body.id);
-
         ArmarMenu();
         nav.push("page-home");
 
@@ -404,10 +403,15 @@ function Navegar(evt) {
             CargarMapa();
             break;
         default:
-            home.style.display = "block";
-            PrenderLoading("Calculando promedios")
-            agregarPromediosCalificaciones();
-            break;
+            if (localStorage.getItem("iduser") != null) {
+                home.style.display = "block";
+                PrenderLoading("Calculando promedios")
+                agregarPromediosCalificaciones();
+                break;
+            } else {
+                login.style.display = "block";
+                break;
+            }
     }
 }
 
