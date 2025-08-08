@@ -37,6 +37,16 @@ function ArmarMenu() {
     document.querySelector("#menu-opciones").innerHTML = html;
 }
 
+function FechaActual() {
+    let hoy = new Date();
+    let anio = hoy.getFullYear();
+    let mes = (hoy.getMonth() + 1).toString().padStart(2, '0');
+    let dia = hoy.getDate().toString().padStart(2, '0');
+    let hoyFormateadaLocal = `${anio}-${mes}-${dia}`;
+
+    return hoyFormateadaLocal;
+}
+
 function Logout() {
     localStorage.clear();
     nav.push("page-login")
@@ -50,6 +60,11 @@ function Eventos() {
     document.querySelector("#btnRegistrar").addEventListener('click', TomarDatosRegistro);
     document.querySelector("#btnAgregarEvaluacion").addEventListener('click', TomarDatosEvaluacion);
     document.addEventListener('ionModalDidPresent', TomarFecha);
+    document.addEventListener('ionViewwillEnter', cargarEvaluaciones);
+}
+
+async function cargarEvaluaciones() {
+    await listaEvaluaciones();
 }
 
 async function TomarDatosRegistro() {
@@ -71,13 +86,14 @@ async function TomarDatosRegistro() {
             body: JSON.stringify(registro),
         });
 
-
+        PrenderLoading("Registrando...");
         let body = await response.json();
 
 
         if (body.codigo == 200) {
             let loginObj = new Object();
-
+            ApagarLoader();
+            MostrarToast("Usuario creado con éxito", 2000);
             loginObj.usuario = n;
             loginObj.password = p;
 
@@ -92,18 +108,23 @@ async function TomarDatosRegistro() {
             let bodyLogin = await responseLogin.json();
 
             if (bodyLogin.codigo == 200) {
-                localStorage.setItem("token", body.token);
-                localStorage.setItem("iduser", body.id);
-
+                localStorage.setItem("token", bodyLogin.token);
+                localStorage.setItem("iduser", bodyLogin.id);
                 ArmarMenu();
                 nav.push("page-home");
             }
         } else {
+            ApagarLoader();
             Alertar("ALERTA!!", "Registro usuario", body.mensaje);
         }
     } else {
+        ApagarLoader();
         Alertar("ALERTA!!", "Registro usuario", "Complete todos los campos");
     }
+
+    document.querySelector("#txtRegistroNombre").value = "";
+    document.querySelector("#txtRegistroPassword").value = "";
+    document.querySelector("#slcPais").value = "";
 }
 
 function DatosValidos(nombre, password, pais) {
@@ -132,10 +153,12 @@ async function TomarDatosLogin() {
         body: JSON.stringify(loginObj),
     });
 
+    PrenderLoading("Iniciando sesión...");
     let body = await response.json();
 
     if (body.codigo == 200) {
-
+        ApagarLoader();
+        MostrarToast("Sesión iniciada con éxito", 2000);
         localStorage.setItem("token", body.token);
         localStorage.setItem("iduser", body.id);
 
@@ -143,10 +166,16 @@ async function TomarDatosLogin() {
         nav.push("page-home");
 
     } else if (body.codigo == 409) {
+        ApagarLoader();
         Alertar("ALERTA!!!", "Login", body.mensaje);
     } else if (body.codigo == 404) {
+        ApagarLoader();
         Alertar("ALERTA!!!", "Login", body.mensaje);
     }
+
+    document.querySelector("#txtLoginUser").value = "";
+    document.querySelector("#txtLoginPassword").value = "";
+
 }
 
 async function TomarDatosEvaluacion() {
@@ -178,16 +207,21 @@ async function TomarDatosEvaluacion() {
         if (body.codigo == 200) {
             ApagarLoader();
             ArmarMenu();
-            listaEvaluaciones();
             nav.push("page-listar-evaluaciones");
 
-
         } else {
+            ApagarLoader();
             Alertar("ALERTA!!", "Agregar evaluacion", body.mensaje);
         }
     } else {
+        ApagarLoader();
         Alertar("ALERTA!!", "Agregar evaluacion", "Datos invalidos");
     }
+
+    document.querySelector("#slcObjetivo").value = "";
+    document.querySelector("#txtCalificacion").value = "";
+    let hoy = FechaActual()
+    document.querySelector("#miFecha").value = hoy;
 }
 
 function TomarFecha() {
@@ -204,10 +238,9 @@ function guardarFecha(event) {
 }
 
 function validarFecha(fecha) {
-    let hoy = new Date();
-    let hoyFormateada = hoy.toISOString().substring(0, 10);
+    let hoy = FechaActual();
 
-    return fecha >= hoyFormateada;
+    return fecha > hoy;
 }
 
 function validarCamposEvaluacion(objetivo, calificacion, usuario) {
@@ -227,6 +260,11 @@ async function listaEvaluaciones(filtro) {
     let evaluacionesFiltradas = aplicarFiltroFecha(evaluaciones, filtro);
 
     let html = ``;
+
+    if (evaluacionesFiltradas == "") {
+        Alertar("ALERTA!!", "Lo sentimos", "No se encontraron evaluaciones");
+        setTimeout(function () { nav.push("page-agregar-evaluacion") }, 1000);
+    }
 
     for (let eval of evaluacionesFiltradas) {
         let emoji = await obtenerEmojiPorId(eval.idObjetivo);
@@ -367,6 +405,8 @@ function Navegar(evt) {
             break;
         default:
             home.style.display = "block";
+            PrenderLoading("Calculando promedios")
+            agregarPromediosCalificaciones();
             break;
     }
 }
@@ -432,7 +472,6 @@ const loading = document.createElement('ion-loading');
 function PrenderLoading(texto) {
     loading.cssClass = 'my-custom-class';
     loading.message = texto;
-    //loading.duration = 2000;
     document.body.appendChild(loading);
     loading.present();
 }
@@ -460,8 +499,6 @@ function MostrarToast(mensaje, duracion) {
 var map = null;
 
 async function CrearMapa() {
-
-
     map = L.map('map').setView([-34.89434734598432, -56.15323438268764], 3);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -473,16 +510,17 @@ async function CrearMapa() {
     let response = await fetch("https://goalify.develotion.com/paises.php");
     let body = await response.json();
     let paises = body.paises;
+    let usuariosPorPais = await obtenerUsuariosPorPais();
 
     for (let pais of paises) {
-        let cantidadUsuarios = await CantidadUsuariosPorId(pais.id);
+        let cantidadUsuarios = await CantidadUsuariosPorId(pais.id, usuariosPorPais);
         var marker = L.marker([pais.latitude, pais.longitude]).addTo(map).bindPopup(`Cantidad de usuarios: ${cantidadUsuarios}`)
     }
 
     ApagarLoader();
 }
 
-async function CantidadUsuariosPorId(idPais) {
+async function obtenerUsuariosPorPais() {
     let response = await fetch(`https://goalify.develotion.com/usuariosPorPais.php`, {
         method: 'GET',
         headers: {
@@ -496,9 +534,67 @@ async function CantidadUsuariosPorId(idPais) {
 
     let paises = body.paises;
 
-    for (let pais of paises) {
+    return paises;
+}
+
+async function CantidadUsuariosPorId(idPais, listaPaises) {
+
+    for (let pais of listaPaises) {
         if (pais.id === idPais) {
             return pais.cantidadDeUsuarios;
         }
     }
 }
+
+
+function promedioGlobalCalificaciones(evaluaciones) {
+    let sumatoria = 0;
+    let promedio = 0;
+    let totalEvaluaciones = evaluaciones.length;
+
+    if (totalEvaluaciones === 0) {
+        return 0
+    }
+
+    for (let e of evaluaciones) {
+        sumatoria += e.calificacion;
+    }
+
+    promedio = sumatoria / totalEvaluaciones;
+
+    return promedio;
+}
+
+function promedioDiarioCalificaciones(evaluaciones) {
+    let sumatoria = 0;
+    let promedio = 0;
+    let totalEvaluaciones = 0;
+    let hoy = FechaActual();
+
+
+    for (let e of evaluaciones) {
+        if (e.fecha == hoy) {
+            totalEvaluaciones++;
+            sumatoria += e.calificacion;
+        }
+    }
+
+    promedio = sumatoria / totalEvaluaciones;
+
+    if (totalEvaluaciones === 0) {
+        return 0
+    }
+    return promedio;
+}
+
+
+async function agregarPromediosCalificaciones() {
+    let data = await obtenerEvaluaciones();
+    let evaluaciones = data.evaluaciones;
+    let promedioGlobal = promedioGlobalCalificaciones(evaluaciones);
+    let promedioDiario = promedioDiarioCalificaciones(evaluaciones);
+
+    ApagarLoader();
+    document.querySelector("#puntajeGlobal").innerHTML = `${promedioGlobal.toFixed(2)}`;
+    document.querySelector("#puntajeDiario").innerHTML = `${promedioDiario.toFixed(2)}`;
+} 
