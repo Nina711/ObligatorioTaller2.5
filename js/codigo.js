@@ -23,7 +23,7 @@ function ArmarMenu() {
     let token = localStorage.getItem("token");
     let html = ``;
     if (token) {
-        html += `   <ion-item href="/" onclick="CerrarMenu()">Home</ion-item>
+        html += `   <ion-item href="/home" onclick="CerrarMenu()">Home</ion-item>
                     <ion-item href="/agregar-evaluacion" onclick="CerrarMenu()">Agregar evaluacion</ion-item>
                     <ion-item href="/listar-evaluaciones" onclick="CerrarMenu()">Evaluaciones</ion-item>
                     <ion-item href="/mapa" onclick="CerrarMenu()">Mapa</ion-item>
@@ -31,7 +31,7 @@ function ArmarMenu() {
                     `;
     } else {
         html += `<ion-item href="/registro" onclick="CerrarMenu()">Registro</ion-item>
-                    <ion-item href="/login" onclick="CerrarMenu()">Login</ion-item>`;
+                    <ion-item href="/" onclick="CerrarMenu()">Login</ion-item>`;
     }
 
     document.querySelector("#menu-opciones").innerHTML = html;
@@ -49,7 +49,7 @@ function FechaActual() {
 
 function Logout() {
     localStorage.clear();
-    nav.push("page-login")
+    nav.push("page-login");
     ArmarMenu();
     CerrarMenu();
 }
@@ -89,7 +89,6 @@ async function TomarDatosRegistro() {
         PrenderLoading("Registrando...");
         let body = await response.json();
 
-
         if (body.codigo == 200) {
             let loginObj = new Object();
             ApagarLoader();
@@ -115,11 +114,11 @@ async function TomarDatosRegistro() {
             }
         } else {
             ApagarLoader();
-            Alertar("ALERTA!!", "Registro usuario", body.mensaje);
+            Alertar("Alerta!", "Registro usuario", body.mensaje);
         }
     } else {
         ApagarLoader();
-        Alertar("ALERTA!!", "Registro usuario", "Complete todos los campos");
+        Alertar("Alerta!", "Registro usuario", "Complete todos los campos");
     }
 
     document.querySelector("#txtRegistroNombre").value = "";
@@ -145,6 +144,8 @@ async function TomarDatosLogin() {
     loginObj.usuario = u;
     loginObj.password = p;
 
+    PrenderLoading("Iniciando sesión...");
+
     let response = await fetch(`https://goalify.develotion.com/login.php`, {
         method: 'POST',
         headers: {
@@ -153,23 +154,22 @@ async function TomarDatosLogin() {
         body: JSON.stringify(loginObj),
     });
 
-    PrenderLoading("Iniciando sesión...");
     let body = await response.json();
 
     if (body.codigo == 200) {
-        ApagarLoader();
-        MostrarToast("Sesión iniciada con éxito", 2000);
         localStorage.setItem("token", body.token);
         localStorage.setItem("iduser", body.id);
+        ApagarLoader();
+        MostrarToast("Sesión iniciada con éxito", 2000);
         ArmarMenu();
-        nav.push("page-home");
+        router.push("/home");
 
     } else if (body.codigo == 409) {
         ApagarLoader();
-        Alertar("ALERTA!!!", "Login", body.mensaje);
+        Alertar("Alerta!", "Login", body.mensaje);
     } else if (body.codigo == 404) {
         ApagarLoader();
-        Alertar("ALERTA!!!", "Login", body.mensaje);
+        Alertar("Alerta!", "Login", body.mensaje);
     }
 
     document.querySelector("#txtLoginUser").value = "";
@@ -183,7 +183,6 @@ async function TomarDatosEvaluacion() {
     let fecha = fechaSeleccionada;
     let usuario = localStorage.getItem("iduser");
     let token = localStorage.getItem("token");
-
 
     if (!validarFecha(fecha) && validarCamposEvaluacion(objetivo, calificacion, usuario)) {
         let response = await fetch(`https://goalify.develotion.com/evaluaciones.php`, {
@@ -210,11 +209,11 @@ async function TomarDatosEvaluacion() {
 
         } else {
             ApagarLoader();
-            Alertar("ALERTA!!", "Agregar evaluacion", body.mensaje);
+            Alertar("Alerta!", "Agregar evaluacion", body.mensaje);
         }
     } else {
         ApagarLoader();
-        Alertar("ALERTA!!", "Agregar evaluacion", "Datos invalidos");
+        Alertar("Alerta!", "Agregar evaluacion", "Datos invalidos");
     }
 
     document.querySelector("#slcObjetivo").value = "";
@@ -261,7 +260,7 @@ async function listaEvaluaciones(filtro) {
     let html = ``;
 
     if (evaluacionesFiltradas == "") {
-        Alertar("ALERTA!!", "Lo sentimos", "No se encontraron evaluaciones");
+        Alertar("Alerta!", "Lo sentimos", "No se encontraron evaluaciones");
         setTimeout(function () { nav.push("page-agregar-evaluacion") }, 1000);
     }
 
@@ -311,7 +310,6 @@ function aplicarFiltroFecha(evaluaciones, filtro) {
 function FiltrarEvaluaciones(filtro) {
     listaEvaluaciones(filtro);
 }
-
 
 async function obtenerEmojiPorId(idObjetivo) {
     let response = await fetch(`https://goalify.develotion.com/objetivos.php`, {
@@ -372,7 +370,7 @@ async function BorrarEvaluacion(idEvaluacion) {
         MostrarToast("Evaluacion borrada con exito", 2000);
         setTimeout(function () { listaEvaluaciones() }, 1000);
     } else {
-        Alertar("ALERTA!!", "Borrar evaluacion", body.mensaje);
+        Alertar("Alerta!", "Borrar evaluacion", body.mensaje);
     }
 
 }
@@ -387,7 +385,7 @@ function Navegar(evt) {
             registro.style.display = "block";
             PoblarSelectPaises();
             break;
-        case "/login":
+        case "/":
             login.style.display = "block";
             break;
         case "/agregar-evaluacion":
@@ -402,10 +400,14 @@ function Navegar(evt) {
             mapa.style.display = "block";
             CargarMapa();
             break;
+        case "/home":
+            home.style.display = "block";
+            agregarPromediosCalificaciones();
+            break;
         default:
             if (localStorage.getItem("iduser") != null) {
                 home.style.display = "block";
-                PrenderLoading("Calculando promedios")
+                PrenderLoading("Calculando promedios");
                 agregarPromediosCalificaciones();
                 break;
             } else {
@@ -590,7 +592,6 @@ function promedioDiarioCalificaciones(evaluaciones) {
     }
     return promedio;
 }
-
 
 async function agregarPromediosCalificaciones() {
     let data = await obtenerEvaluaciones();

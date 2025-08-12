@@ -4,17 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Goalify</title>
     <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
     <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css" />
-
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-    <!-- Make sure you put this AFTER Leaflet's CSS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-
     <style>
         #map {
             height: 100%;
@@ -24,23 +21,20 @@
 
 <body>
     <ion-app>
-        <!--Todas las pantallas van a estar aca-->
-
         <ion-router id="ruteo">
-            <ion-route url="/" component="page-home"></ion-route>
+            <ion-route url="/home" component="page-home"></ion-route>
             <ion-route url="/registro" component="page-registro"></ion-route>
-            <ion-route url="/login" component="page-login"></ion-route>
+            <ion-route url="/" component="page-login"></ion-route>
             <ion-route url="/agregar-evaluacion" component="page-agregar-evaluacion"></ion-route>
             <ion-route url="/listar-evaluaciones" component="page-listar-evaluaciones"></ion-route>
             <ion-route url="/mapa" component="page-mapa"></ion-route>
         </ion-router>
         <ion-nav></ion-nav>
 
-        <!-- MENU -->
         <ion-menu side="start" menu-id="first" content-id="main" id="menu">
             <ion-header>
                 <ion-toolbar color="primary">
-                    <iont-title>Menu de inicio</iont-title>
+                    <iont-title>Menú de inicio</iont-title>
                 </ion-toolbar>
             </ion-header>
 
@@ -49,9 +43,7 @@
             </ion-content>
         </ion-menu>
         <div id="main"></div>
-        <!-- FIN MENU -->
 
-        <!-- PANTALLAS -->
         <page-home class="ion-page" id="pantalla-home">
             <ion-header>
                 <ion-toolbar>
@@ -151,8 +143,7 @@
                     <ion-buttons slot="start">
                         <ion-menu-button></ion-menu-button>
                     </ion-buttons>
-                    <ion-title>Agregar evaluacion</ion-title>
-
+                    <ion-title>Agregar evaluación</ion-title>
                 </ion-toolbar>
             </ion-header>
 
@@ -182,7 +173,7 @@
                         </ion-modal>
                     </ion-item>
 
-                    <ion-button expand="full" id="btnAgregarEvaluacion">Agregar evaluacion</ion-button>
+                    <ion-button expand="full" id="btnAgregarEvaluacion">Agregar evaluación</ion-button>
 
                 </ion-list>
             </ion-content>
@@ -203,7 +194,6 @@
                 <ion-button onclick="FiltrarEvaluaciones('mes')">Último mes</ion-button>
                 <ion-button onclick="FiltrarEvaluaciones('todo')">Ver todo</ion-button>
 
-
                 <ion-div id="lista-evaluaciones"></ion-div>
             </ion-content>
         </page-listar-evaluaciones>
@@ -222,10 +212,9 @@
                 <div id="map"></div>
             </ion-content>
         </page-mapa>
-        <!-- FIN PANTALLAS -->
 
     </ion-app>
-    <script src="/js/codigo.js"></script>
+    <script src="js/codigo.js"></script>
 </body>
 
 </html>
